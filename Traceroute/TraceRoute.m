@@ -20,6 +20,10 @@
     udpPort = port;
     readTimeout = timeout;
     maxAttempts = attempts;
+    NSLog(@"  maxAttempts=%d",maxAttempts);
+    NSLog(@"TraceRoute");
+    
+    return self;
 }
 
 /**
@@ -39,6 +43,7 @@
  */
 - (Boolean)doTraceRoute:(NSString *)host
 {
+    //NSLog(@"doTraceRoute");
     struct hostent *host_entry = gethostbyname(host.UTF8String);
     char *ip_addr;
     ip_addr = inet_ntoa(*((struct in_addr *)host_entry->h_addr_list[0]));
@@ -46,6 +51,10 @@
     int recv_sock;
     int send_sock;
     Boolean error = false;
+    
+    isrunning = true;
+    // On vide la TableView
+    [Hop clear];
     
     // Création de la socket destinée à traiter l'ICMP envoyé en retour.
     if ((recv_sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP)) < 0) {
@@ -67,15 +76,21 @@
     socklen_t n= sizeof(fromAddr);
     char buf[100];
     
-    int ttl = 0;
+    //NSLog(@"maxAttempts=%d",maxAttempts);
+    
+    int ttl = 1;
     while(ttl < maxTTL) {
+        //NSLog(@"ttl=%d",ttl);
         memset(&fromAddr, 0, sizeof(fromAddr));
         if(setsockopt(send_sock, IPPROTO_IP, IP_TTL, &ttl, sizeof(ttl))<0) {
             error = true;
             NSLog(@"error in setsockopt\n");
         }
         int try = 0;
+        bool icmp = false;
+        Hop *routeHop;
         while(try < maxAttempts) {
+            //NSLog(@"try=%d",try);
             try++;
             if (sendto(send_sock,cmsg,sizeof(cmsg),0,(struct sockaddr *) &destination,sizeof(destination)) != sizeof(cmsg) ) {
                 error = true;
@@ -88,31 +103,47 @@
                 NSLog(@"an error: %s; recvfrom returned %d\n", strerror(errno), res);
             } else {
                 char display[16]={0};
+                icmp = true;
                 inet_ntop(AF_INET, &fromAddr.sin_addr.s_addr, display, sizeof (display));
                 NSString *hostAddress = [NSString stringWithFormat:@"%s",display];
                 NSString *hostName = [BDHost hostnameForAddress:hostAddress];
                 
-                Hop *routeHop = [[Hop alloc] initWithHostAddress:hostAddress hostName:hostName ttl:ttl];
+                routeHop = [[Hop alloc] initWithHostAddress:hostAddress hostName:hostName ttl:ttl];
                 [Hop addHop:routeHop];
-                if(_delegate != nil) {
+                /*if(_delegate != nil) {
                     [_delegate newHop:routeHop];
-                }
+                }*/
                 
-                NSLog(@"Received packet from:%s for TTL=%d\n",display,ttl);
+                //NSLog(@"Received packet from:%@/%@ for TTL=%d\n",hostAddress,hostName,ttl);
                 
                 break;
             }
-        }
-        
-        // On teste si l'utilisateur a demandé l'arrêt du traceroute
-        @synchronized(running) {
-            if(!running) {
-                try = maxTTL;
+            // On teste si l'utilisateur a demandé l'arrêt du traceroute
+            @synchronized(running) {
+                if(!isrunning) {
+                    ttl = maxTTL;
+                    break;
+                }
             }
         }
+        // En cas de timeout
+        if(!icmp) {
+            routeHop = [[Hop alloc] initWithHostAddress:@"*" hostName:@"*" ttl:ttl];
+            [Hop addHop:routeHop];
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if(_delegate != nil) {
+                [_delegate newHop:routeHop];
+            }
+        });
+        ttl++;
     }
+    NSLog(@"TR done");
+    isrunning = false;
     // On averti le delegate que le traceroute est terminé.
-    [_delegate end];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [_delegate end];
+    });
     return error;
 }
 
@@ -122,7 +153,7 @@
 - (void)stopTrace
 {
     @synchronized(running) {
-        running = false;
+        isrunning = false;
     }
 }
 
@@ -131,6 +162,13 @@
  */
 - (int)hopsCount {
     return [Hop hopsCount];
+}
+
+/**
+ * Retourne un boolean indiquant si le traceroute est toujours actif.
+ */
+- (bool)isRunning {
+    return isrunning;
 }
 
 @end

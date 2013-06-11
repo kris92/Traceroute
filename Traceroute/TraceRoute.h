@@ -29,6 +29,7 @@ static const int TRACEROUTE_TIMEOUT  = 1000000;
     int readTimeout;
     int maxAttempts;
     NSString *running;
+    bool isrunning;
 }
 
 @property (nonatomic, weak) id<TraceRouteDelegate> delegate;
@@ -38,5 +39,6 @@ static const int TRACEROUTE_TIMEOUT  = 1000000;
 - (void)doTraceRouteToHost:(NSString *)host;
 - (void)stopTrace;
 - (int)hopsCount;
+- (bool)isRunning;
 
 @end

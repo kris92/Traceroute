@@ -7,6 +7,8 @@
 //
 
 #import "ViewController.h"
+#import "HopCell.h"
+#import "BDHost.h"
 
 @interface ViewController ()
 
@@ -41,10 +43,12 @@
         [prefs setInteger:timeout forKey:@"Port"];
     }
     NSInteger maxAttempts = [prefs integerForKey:@"MaxAttempts"];
+    NSLog(@"maxAttempts=%d",maxAttempts);
     if(maxAttempts == 0) {
         maxAttempts = TRACEROUTE_ATTEMPTS;
         [prefs setInteger:timeout forKey:@"MaxAttempts"];
     }
+    NSLog(@"maxAttempts=%d",maxAttempts);
     [prefs synchronize];
     
     // On récupère le host utilisé lors de la dernière utilisation
@@ -54,7 +58,9 @@
     }
     
     traceRoute = [[TraceRoute alloc] initWithMaxTTL:ttl timeout:timeout maxAttempts:maxAttempts port:port];
+    NSLog(@"ViewController 1");
     [traceRoute setDelegate:self];
+    NSLog(@"ViewController 2");
 }
 
 - (void)didReceiveMemoryWarning
@@ -68,23 +74,36 @@
  */
 - (IBAction)traceRoute:(id)sender
 {
-    [_activityIndicator startAnimating];
-    [prefs setObject:[_hostTextField text] forKey:@"LastHost"];
-    NSThread* myThread = [[NSThread alloc] initWithTarget:traceRoute
-                                                 selector:@selector(doTraceRoute:)
-                                                   object:[_hostTextField text]];
+    NSLog(@"isRunning %d",[traceRoute isRunning]);
+    if([traceRoute isRunning]) {
+        [traceRoute stopTrace];
+    } else {
+        NSLog(@"traceRoute %@",traceRoute);
+        [_activityIndicator startAnimating];
+        NSLog(@"traceRoute to:%@",[_hostTextField text]);
+        [prefs setObject:[_hostTextField text] forKey:@"LastHost"];
+        
+        dispatch_queue_t myQueue = dispatch_queue_create("TraceRoute Queue",NULL);
+        
+        [NSThread detachNewThreadSelector:@selector(doTraceRoute:) toTarget:traceRoute withObject:[_hostTextField text]];
+        /*[[NSThread alloc] initWithTarget:traceRoute
+                            selector:@selector(doTraceRoute:)
+                              object:[_hostTextField text]];*/
+        NSLog(@"traceRoute B");
+    }
 }
 
 #pragma mark TraceRouteDelegate
 
 - (void)newHop:(Hop *)hop
 {
+    NSLog(@"newHop");
     [_routeHopsTableView reloadData];
 }
 
 - (void)end
 {
-    [_activityIndicator startAnimating];
+    [_activityIndicator stopAnimating];
 }
 
 #pragma mark -
@@ -115,24 +134,30 @@
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    static NSString *CellIdentifier = @"RouteCell";
-    RouteCell *cell = (RouteCell *)[self._routeHopsTableView dequeueReusableCellWithIdentifier:CellIdentifier];
-	/*static NSString *CellIdentifier = @"RouteCell";
-    RouteCell *cell = (RouteCell *)[[_routeHopsTableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    static NSString *CellIdentifier = @"RouteCell";
-    RouteCell *cell = (RaceCell *)[self.tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    static NSString *CellIdentifier = @"HopCell";
+    HopCell *cell = (HopCell *)[self.routeHopsTableView dequeueReusableCellWithIdentifier:CellIdentifier];
+
     if(cell == nil) {
-        NSArray *topLevelObjects = [[NSBundle mainBundle] loadNibNamed:@"RouteCell" owner:self options:nil];
+        NSArray *topLevelObjects = [[NSBundle mainBundle] loadNibNamed:@"HopCell" owner:self options:nil];
         for (id currentObject in topLevelObjects) {
             if( [currentObject isKindOfClass:[UITableViewCell class]] ) {
-                cell = (RouteCell *) currentObject;
+                cell = (HopCell *) currentObject;
                 [cell init];
 				break;
 			}
 		}
-    }*/
+    }
     
-    //int rid = [indexPath indexAtPosition:1] + 1;
+    int hopId = [indexPath indexAtPosition:1];
+    NSLog(@"hopId=%d",[indexPath indexAtPosition:1]);
+    Hop *hop = [Hop getHopAt:hopId];
+    if(hop != nil) {
+        NSLog(@"hostAddress=%@",[hop hostAddress]);
+        cell.ttlLabel.text = [NSString stringWithFormat:@"%d",[hop ttl]];
+        cell.hostAddressLabel.text = hop.hostAddress;
+        cell.hostnameLabel.text = hop.hostName;
+    }
+    
     //Race *race = [Race getRace:rid];
     /*if(race != nil) {
      NSLog(@"raceName=%@ count=%d",race.raceName,[race participantsCount]);

@@ -28,13 +28,24 @@ static NSMutableArray *hops;
 
 + (Hop *)HopsManager
 {
+    NSLog(@"HopsManager");
     if(!HopsManager) {
         NSLog(@"init hopsManager");
         HopsManager = [[self allocWithZone:NULL] init];
         hops = [[NSMutableArray alloc] init];
     }
+    NSLog(@"HopsManager passed");
     
     return HopsManager;
+}
+
++ (Hop *)getHopAt:(int)pos
+{
+    NSLog(@"getHopAt:%d",pos);
+    if(pos >= [hops count]) {
+        return [hops objectAtIndex:0];
+    }
+    return [hops objectAtIndex:pos];
 }
 
 /**
@@ -42,6 +53,7 @@ static NSMutableArray *hops;
  */
 + (void)addHop:(Hop *)hop
 {
+    NSLog(@"addHop");
     [hops addObject:hop];
 }
 
@@ -50,7 +62,16 @@ static NSMutableArray *hops;
  */
 + (int)hopsCount
 {
+    NSLog(@"hopsCount:%d",[hops count]);
     return [hops count];
+}
+
+/**
+ * Réinitialise la liste des hops
+ */
++ (void)clear
+{
+    [hops removeAllObjects];
 }
 
 @end

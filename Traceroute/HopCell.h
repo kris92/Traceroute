@@ -8,6 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-@interface HopCell : UITableViewCell
+@interface HopCell : UITableViewCell {
+    
+}
+@property (weak, nonatomic) IBOutlet UILabel *ttlLabel;
+@property (weak, nonatomic) IBOutlet UILabel *hostnameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *hostAddressLabel;
 
 @end

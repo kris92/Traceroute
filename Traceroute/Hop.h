@@ -17,7 +17,9 @@
 
 - (Hop *)initWithHostAddress:(NSString *)hostAddress hostName:(NSString *)hostName ttl:(int)ttl;
 + (Hop *)HopsManager;
++ (Hop *)getHopAt:(int)pos;
 + (void)addHop:(Hop *)hop;
 + (int)hopsCount;
++ (void)clear;
 
 @end

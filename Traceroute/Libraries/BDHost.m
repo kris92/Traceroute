@@ -93,7 +93,7 @@
             if(currentAddress->ifa_addr->sa_family == AF_INET) {
                 NSString *address = [NSString stringWithUTF8String:inet_ntoa(((struct sockaddr_in *)currentAddress->ifa_addr)->sin_addr)];
                 if (![address isEqual:@"127.0.0.1"]) {
-                    NSLog(@"%@ ip: %@", [NSString stringWithUTF8String:currentAddress->ifa_name], address);
+                    //NSLog(@"%@ ip: %@", [NSString stringWithUTF8String:currentAddress->ifa_name], address);
                     [addresses addObject:address];
                 }
             }
@@ -123,7 +123,7 @@
                 address = [NSString stringWithUTF8String:paddedAddress];
                 
                 if (![address isEqual:@"00:00:00:00:00:00"] && ![address isEqual:@"00:00:00:00:00:FF"]) {
-                    NSLog(@"%@ mac: %@", [NSString stringWithUTF8String:currentAddress->ifa_name], address);
+                    //NSLog(@"%@ mac: %@", [NSString stringWithUTF8String:currentAddress->ifa_name], address);
                     [addresses addObject:address];
                 }
             }
