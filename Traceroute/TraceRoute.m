@@ -58,11 +58,11 @@
     
     // Création de la socket destinée à traiter l'ICMP envoyé en retour.
     if ((recv_sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP)) < 0) {
-        NSLog(@"Could not create recv_sock.");
+        NSLog(@"ERROR Could not create recv_sock.");
     }
     // Création de la socket destinée à 
     if((send_sock = socket(AF_INET , SOCK_DGRAM,0))<0){
-        NSLog(@"Could not cretae send_sock.\n");
+        NSLog(@"ERROR Could not cretae send_sock.\n");
     }
     memset(&destination, 0, sizeof(destination));
     destination.sin_family = AF_INET;
@@ -79,28 +79,32 @@
     //NSLog(@"maxAttempts=%d",maxAttempts);
     
     int ttl = 1;
+    int try = 0;
+    // Positionné à true lorsqu'on reçoit la trame ICMP en retour.
+    bool icmp = false;
+    Hop *routeHop;
     while(ttl < maxTTL) {
         //NSLog(@"ttl=%d",ttl);
         memset(&fromAddr, 0, sizeof(fromAddr));
         if(setsockopt(send_sock, IPPROTO_IP, IP_TTL, &ttl, sizeof(ttl))<0) {
             error = true;
-            NSLog(@"error in setsockopt\n");
+            NSLog(@"ERROR in setsockopt\n");
         }
-        int try = 0;
-        bool icmp = false;
-        Hop *routeHop;
+        
+        try = 0;
+        icmp = false;
         while(try < maxAttempts) {
             //NSLog(@"try=%d",try);
             try++;
             if (sendto(send_sock,cmsg,sizeof(cmsg),0,(struct sockaddr *) &destination,sizeof(destination)) != sizeof(cmsg) ) {
                 error = true;
-                NSLog (@"error in send to...\n@");
+                NSLog (@"ERROR in send to...\n@");
             }
             int res = 0;
             
             if( (res = recvfrom(recv_sock, buf, 100, 0, (struct sockaddr *)&fromAddr,&n))<0) {
                 error = true;
-                NSLog(@"an error: %s; recvfrom returned %d\n", strerror(errno), res);
+                NSLog(@"ERROR [%d/%d] %s; recvfrom returned %d\n", try, maxAttempts, strerror(errno), res);
             } else {
                 char display[16]={0};
                 icmp = true;
@@ -122,6 +126,8 @@
             @synchronized(running) {
                 if(!isrunning) {
                     ttl = maxTTL;
+                    // On force le statut d'icmp pour ne pas générer un Hop en sortie de boucle;
+                    icmp = true;
                     break;
                 }
             }
@@ -138,7 +144,6 @@
         });
         ttl++;
     }
-    NSLog(@"TR done");
     isrunning = false;
     // On averti le delegate que le traceroute est terminé.
     dispatch_async(dispatch_get_main_queue(), ^{

@@ -46,7 +46,7 @@
     NSLog(@"maxAttempts=%d",maxAttempts);
     if(maxAttempts == 0) {
         maxAttempts = TRACEROUTE_ATTEMPTS;
-        [prefs setInteger:timeout forKey:@"MaxAttempts"];
+        [prefs setInteger:maxAttempts forKey:@"MaxAttempts"];
     }
     NSLog(@"maxAttempts=%d",maxAttempts);
     [prefs synchronize];
@@ -77,18 +77,19 @@
     NSLog(@"isRunning %d",[traceRoute isRunning]);
     if([traceRoute isRunning]) {
         [traceRoute stopTrace];
+        [sender setTitle:@"Start" forState:UIControlStateNormal];
     } else {
         NSLog(@"traceRoute %@",traceRoute);
         [_activityIndicator startAnimating];
         NSLog(@"traceRoute to:%@",[_hostTextField text]);
         [prefs setObject:[_hostTextField text] forKey:@"LastHost"];
         
-        dispatch_queue_t myQueue = dispatch_queue_create("TraceRoute Queue",NULL);
+        //dispatch_queue_t myQueue = dispatch_queue_create("TraceRoute Queue",NULL);
         
         [NSThread detachNewThreadSelector:@selector(doTraceRoute:) toTarget:traceRoute withObject:[_hostTextField text]];
-        /*[[NSThread alloc] initWithTarget:traceRoute
-                            selector:@selector(doTraceRoute:)
-                              object:[_hostTextField text]];*/
+        
+        [sender setTitle:@"Stop" forState:UIControlStateNormal];
+        
         NSLog(@"traceRoute B");
     }
 }
@@ -157,18 +158,6 @@
         cell.hostAddressLabel.text = hop.hostAddress;
         cell.hostnameLabel.text = hop.hostName;
     }
-    
-    //Race *race = [Race getRace:rid];
-    /*if(race != nil) {
-     NSLog(@"raceName=%@ count=%d",race.raceName,[race participantsCount]);
-     }*/
-    //NSLog(@"IndexPath %@ %d",indexPath,[indexPath indexAtPosition:1]);
-    
-    /*cell.raceNameLabel.text = race.raceName;
-    cell.runnersCountLabel.text = [NSString stringWithFormat:@"%d",[race participantsCount]];
-    [cell.raceRatioView setPieRatio:[race raceRatio]];
-    [cell setNeedsDisplay];
-    [cell setNeedsLayout];*/
     
     return cell;
 }

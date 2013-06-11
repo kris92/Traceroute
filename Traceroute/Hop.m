@@ -23,25 +23,24 @@ static NSMutableArray *hops;
     _hostName = hostName;
     _ttl = ttl;
     
+    NSLog(@"Hop[%d]=%@",ttl,hostAddress);
+    
     return self;
 }
 
 + (Hop *)HopsManager
 {
-    NSLog(@"HopsManager");
     if(!HopsManager) {
-        NSLog(@"init hopsManager");
         HopsManager = [[self allocWithZone:NULL] init];
         hops = [[NSMutableArray alloc] init];
     }
-    NSLog(@"HopsManager passed");
     
     return HopsManager;
 }
 
 + (Hop *)getHopAt:(int)pos
 {
-    NSLog(@"getHopAt:%d",pos);
+    //NSLog(@"getHopAt:%d",pos);
     if(pos >= [hops count]) {
         return [hops objectAtIndex:0];
     }
@@ -53,7 +52,6 @@ static NSMutableArray *hops;
  */
 + (void)addHop:(Hop *)hop
 {
-    NSLog(@"addHop");
     [hops addObject:hop];
 }
 
@@ -62,7 +60,6 @@ static NSMutableArray *hops;
  */
 + (int)hopsCount
 {
-    NSLog(@"hopsCount:%d",[hops count]);
     return [hops count];
 }
 
