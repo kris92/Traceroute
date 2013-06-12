@@ -16,14 +16,16 @@ static NSMutableArray *hops;
 @synthesize hostAddress = _hostAddress;
 @synthesize hostName = _hostName;
 @synthesize ttl = _ttl;
+@synthesize time = _time;
 
-- (Hop *)initWithHostAddress:(NSString *)hostAddress hostName:(NSString *)hostName ttl:(int)ttl
+- (Hop *)initWithHostAddress:(NSString *)hostAddress hostName:(NSString *)hostName ttl:(int)ttl time:(int)time
 {
     _hostAddress = hostAddress;
     _hostName = hostName;
     _ttl = ttl;
+    _time = time;
     
-    NSLog(@"Hop[%d]=%@",ttl,hostAddress);
+    NSLog(@"Hop[%d]=%@ %dms",ttl,hostAddress,time);
     
     return self;
 }

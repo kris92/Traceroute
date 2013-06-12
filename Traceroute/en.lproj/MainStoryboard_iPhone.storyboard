@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="3084" systemVersion="11G63b" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="2">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="3084" systemVersion="12E55" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="2">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="2083"/>
     </dependencies>
@@ -9,16 +9,20 @@
             <objects>
                 <viewController id="2" customClass="ViewController" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="3">
-                        <rect key="frame" x="0.0" y="20" width="320" height="548"/>
+                        <rect key="frame" x="0.0" y="20" width="320" height="460"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="lu5-oz-8yJ">
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="149" id="F4M-Jt-blU"/>
-                                    <constraint firstAttribute="height" constant="32" type="user" id="gZM-vY-QC1"/>
+                                    <constraint firstAttribute="height" constant="32" id="tRM-fR-MzC"/>
+                                    <constraint firstAttribute="width" constant="149" id="yMY-Cb-dME"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
+                                <connections>
+                                    <action selector="traceRoute:" destination="2" eventType="editingDidEnd" id="RXS-sa-yhj"/>
+                                    <outlet property="delegate" destination="2" id="zlb-Vg-4Cu"/>
+                                </connections>
                             </textField>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Host" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vS4-65-sUG">
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -27,9 +31,6 @@
                             </label>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="64X-0A-2Xg">
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="473" type="user" id="LgR-OG-L01"/>
-                                </constraints>
                                 <connections>
                                     <outlet property="dataSource" destination="2" id="46i-Ui-LNr"/>
                                     <outlet property="delegate" destination="2" id="4IW-YM-JLH"/>
@@ -37,7 +38,8 @@
                             </tableView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4bp-9N-01l">
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="73" id="qTw-Nz-sqM"/>
+                                    <constraint firstAttribute="width" constant="73" id="D0q-e2-xMG"/>
+                                    <constraint firstAttribute="height" constant="33" id="qZT-z1-zbu"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
                                 <state key="normal" title="Go">
@@ -53,27 +55,25 @@
                             </button>
                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="37i-KN-W4b"/>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" red="0.94739300271739135" green="0.94739300271739135" blue="0.94739300271739135" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
-                            <constraint firstItem="lu5-oz-8yJ" firstAttribute="top" secondItem="3" secondAttribute="top" constant="15" type="user" id="1E9-aM-WGj"/>
-                            <constraint firstItem="4bp-9N-01l" firstAttribute="top" secondItem="lu5-oz-8yJ" secondAttribute="top" type="default" id="981-aQ-BCK"/>
-                            <constraint firstItem="64X-0A-2Xg" firstAttribute="leading" secondItem="3" secondAttribute="leading" constant="20" symbolic="YES" type="default" id="CPq-Pp-QaM"/>
-                            <constraint firstItem="lu5-oz-8yJ" firstAttribute="baseline" secondItem="vS4-65-sUG" secondAttribute="baseline" type="default" id="FVr-Zo-0cU"/>
-                            <constraint firstItem="4bp-9N-01l" firstAttribute="leading" secondItem="37i-KN-W4b" secondAttribute="trailing" constant="8" symbolic="YES" type="default" id="Fen-n5-d56"/>
-                            <constraint firstItem="vS4-65-sUG" firstAttribute="top" secondItem="3" secondAttribute="top" constant="20" symbolic="YES" type="default" id="IXi-OI-dxc"/>
-                            <constraint firstAttribute="bottom" secondItem="64X-0A-2Xg" secondAttribute="bottom" constant="20" symbolic="YES" type="user" id="JML-Aq-GTd"/>
-                            <constraint firstItem="lu5-oz-8yJ" firstAttribute="leading" secondItem="vS4-65-sUG" secondAttribute="trailing" constant="8" symbolic="YES" type="default" id="L0y-fX-Ce2"/>
-                            <constraint firstItem="37i-KN-W4b" firstAttribute="top" secondItem="3" secondAttribute="top" constant="22" id="LLr-hp-JFC"/>
-                            <constraint firstAttribute="trailing" secondItem="4bp-9N-01l" secondAttribute="trailing" constant="11" id="XbN-Tr-ztt"/>
-                            <constraint firstAttribute="trailing" secondItem="64X-0A-2Xg" secondAttribute="trailing" constant="20" symbolic="YES" type="default" id="XzU-RJ-MgD"/>
-                            <constraint firstItem="4bp-9N-01l" firstAttribute="baseline" secondItem="lu5-oz-8yJ" secondAttribute="baseline" type="default" id="ZT3-82-OcP"/>
-                            <constraint firstItem="64X-0A-2Xg" firstAttribute="top" secondItem="lu5-oz-8yJ" secondAttribute="bottom" constant="8" symbolic="YES" type="user" id="otm-Tm-3Pv"/>
-                            <constraint firstItem="vS4-65-sUG" firstAttribute="leading" secondItem="3" secondAttribute="leading" constant="9" id="qdn-Sw-WSV"/>
-                            <constraint firstItem="64X-0A-2Xg" firstAttribute="top" secondItem="4bp-9N-01l" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="yeC-6E-TJc"/>
+                            <constraint firstItem="64X-0A-2Xg" firstAttribute="leading" secondItem="vS4-65-sUG" secondAttribute="leading" type="default" id="0qi-D8-AQv"/>
+                            <constraint firstItem="4bp-9N-01l" firstAttribute="leading" secondItem="37i-KN-W4b" secondAttribute="trailing" constant="8" symbolic="YES" type="default" id="4cb-zp-OEK"/>
+                            <constraint firstAttribute="trailing" secondItem="64X-0A-2Xg" secondAttribute="trailing" constant="10" type="user" id="4sS-7r-PDk"/>
+                            <constraint firstItem="4bp-9N-01l" firstAttribute="baseline" secondItem="lu5-oz-8yJ" secondAttribute="baseline" type="default" id="Fr7-2A-qsn"/>
+                            <constraint firstItem="lu5-oz-8yJ" firstAttribute="leading" secondItem="vS4-65-sUG" secondAttribute="trailing" constant="8" symbolic="YES" type="default" id="GXi-6y-TKC"/>
+                            <constraint firstItem="64X-0A-2Xg" firstAttribute="leading" secondItem="3" secondAttribute="leading" constant="10" type="user" id="Pag-Tp-TAL"/>
+                            <constraint firstItem="vS4-65-sUG" firstAttribute="centerY" secondItem="4bp-9N-01l" secondAttribute="centerY" type="default" id="XKd-gU-53u"/>
+                            <constraint firstItem="64X-0A-2Xg" firstAttribute="top" secondItem="lu5-oz-8yJ" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="gYb-7P-uIM"/>
+                            <constraint firstAttribute="bottom" secondItem="64X-0A-2Xg" secondAttribute="bottom" constant="20" symbolic="YES" type="default" id="jOT-kK-HH3"/>
+                            <constraint firstAttribute="trailing" secondItem="4bp-9N-01l" secondAttribute="trailing" constant="11" id="lOx-3k-E8c"/>
+                            <constraint firstItem="37i-KN-W4b" firstAttribute="top" secondItem="3" secondAttribute="top" constant="22" id="nTo-uY-Hhs"/>
+                            <constraint firstItem="vS4-65-sUG" firstAttribute="top" secondItem="3" secondAttribute="top" constant="20" symbolic="YES" type="default" id="qVZ-Sd-pkp"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="activityIndicator" destination="37i-KN-W4b" id="lnP-Lq-2Te"/>
+                        <outlet property="execButton" destination="4bp-9N-01l" id="2F6-Av-BvI"/>
                         <outlet property="hostTextField" destination="lu5-oz-8yJ" id="vy6-9v-7d0"/>
                         <outlet property="routeHopsTableView" destination="64X-0A-2Xg" id="eAj-Bx-DZQ"/>
                     </connections>
@@ -92,6 +92,7 @@
             <relationships>
                 <relationship kind="action" name="traceRoute:"/>
                 <relationship kind="outlet" name="activityIndicator" candidateClass="UIActivityIndicatorView"/>
+                <relationship kind="outlet" name="execButton" candidateClass="UIButton"/>
                 <relationship kind="outlet" name="hostTextField" candidateClass="UITextField"/>
                 <relationship kind="outlet" name="routeHopsTableView" candidateClass="UITableView"/>
             </relationships>
@@ -100,6 +101,6 @@
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>
-        <simulatedScreenMetrics key="destination" type="retina4"/>
+        <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
 </document>

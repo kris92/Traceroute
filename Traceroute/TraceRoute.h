@@ -11,14 +11,15 @@
 
 static const int TRACEROUTE_PORT     = 80;
 static const int TRACEROUTE_MAX_TTL  = 20;
-static const int TRACEROUTE_ATTEMPTS = 5;
-static const int TRACEROUTE_TIMEOUT  = 1000000;
+static const int TRACEROUTE_ATTEMPTS = 2;
+static const int TRACEROUTE_TIMEOUT  = 5000000;
 
 // Delégation afin de notifier chaque nouveau hop découvert pour chaque TTL.
 @protocol TraceRouteDelegate
 
 - (void)newHop:(Hop *)hop;
 - (void)end;
+- (void)error:(NSString *)errorDesc;
 
 @end
 
@@ -35,10 +36,12 @@ static const int TRACEROUTE_TIMEOUT  = 1000000;
 @property (nonatomic, weak) id<TraceRouteDelegate> delegate;
 
 - (TraceRoute *)initWithMaxTTL:(int)ttl timeout:(int)timeout maxAttempts:(int)attempts port:(int)port;
-- (void)doTraceRouteToHost:(NSString *)host maxTTL:(int)ttl timeout:(int)timeout maxAttempts:(int)attempts port:(int)port;
-- (void)doTraceRouteToHost:(NSString *)host;
+- (Boolean)doTraceRouteToHost:(NSString *)host maxTTL:(int)ttl timeout:(int)timeout maxAttempts:(int)attempts port:(int)port;
+- (Boolean)doTraceRouteToHost:(NSString *)host;
 - (void)stopTrace;
-- (int)hopsCount;
++ (int)hopsCount;
 - (bool)isRunning;
++ (long)getMicroSeconds;
++ (long)computeDurationSince:(long)uTime;
 
 @end

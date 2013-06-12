@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		011482C11761195B001CDA16 /* HopCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 011482C01761195B001CDA16 /* HopCell.xib */; };
+		011482C11761195B001CDA16 /* HopCellIPhone.xib in Resources */ = {isa = PBXBuildFile; fileRef = 011482C01761195B001CDA16 /* HopCellIPhone.xib */; };
+		012FEB4E1767DD1E00686FB9 /* HopCellIPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 012FEB4D1767DD1E00686FB9 /* HopCellIPad.xib */; };
 		F52234E4176084F700AC6679 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F52234E3176084F700AC6679 /* UIKit.framework */; };
 		F52234E6176084F800AC6679 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F52234E5176084F700AC6679 /* Foundation.framework */; };
 		F52234E8176084F800AC6679 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F52234E7176084F800AC6679 /* CoreGraphics.framework */; };
@@ -29,7 +30,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		011482C01761195B001CDA16 /* HopCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HopCell.xib; sourceTree = "<group>"; };
+		011482C01761195B001CDA16 /* HopCellIPhone.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HopCellIPhone.xib; sourceTree = "<group>"; };
+		012FEB4D1767DD1E00686FB9 /* HopCellIPad.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HopCellIPad.xib; sourceTree = "<group>"; };
 		F52234E0176084F700AC6679 /* Traceroute.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Traceroute.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F52234E3176084F700AC6679 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		F52234E5176084F700AC6679 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -105,6 +107,8 @@
 		F52234E9176084F800AC6679 /* Traceroute */ = {
 			isa = PBXGroup;
 			children = (
+				F52235251760CD9600AC6679 /* HopCell.h */,
+				F52235261760CD9600AC6679 /* HopCell.m */,
 				F52235101760855A00AC6679 /* iPad */,
 				F522350F1760854D00AC6679 /* iPhone */,
 				F52234F2176084F800AC6679 /* AppDelegate.h */,
@@ -150,6 +154,7 @@
 		F522350F1760854D00AC6679 /* iPhone */ = {
 			isa = PBXGroup;
 			children = (
+				011482C01761195B001CDA16 /* HopCellIPhone.xib */,
 			);
 			name = iPhone;
 			sourceTree = "<group>";
@@ -157,9 +162,7 @@
 		F52235101760855A00AC6679 /* iPad */ = {
 			isa = PBXGroup;
 			children = (
-				F52235251760CD9600AC6679 /* HopCell.h */,
-				F52235261760CD9600AC6679 /* HopCell.m */,
-				011482C01761195B001CDA16 /* HopCell.xib */,
+				012FEB4D1767DD1E00686FB9 /* HopCellIPad.xib */,
 			);
 			name = iPad;
 			sourceTree = "<group>";
@@ -222,7 +225,8 @@
 				F52234FD176084F800AC6679 /* MainStoryboard_iPhone.storyboard in Resources */,
 				F5223500176084F800AC6679 /* MainStoryboard_iPad.storyboard in Resources */,
 				F522351D1760AA4800AC6679 /* logo-jumelle.png in Resources */,
-				011482C11761195B001CDA16 /* HopCell.xib in Resources */,
+				011482C11761195B001CDA16 /* HopCellIPhone.xib in Resources */,
+				012FEB4E1767DD1E00686FB9 /* HopCellIPad.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

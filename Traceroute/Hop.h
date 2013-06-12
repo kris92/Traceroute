@@ -14,8 +14,9 @@
 @property NSString *hostAddress;
 @property NSString *hostName;
 @property int ttl;
+@property int time;
 
-- (Hop *)initWithHostAddress:(NSString *)hostAddress hostName:(NSString *)hostName ttl:(int)ttl;
+- (Hop *)initWithHostAddress:(NSString *)hostAddress hostName:(NSString *)hostName ttl:(int)ttl time:(int)time;
 + (Hop *)HopsManager;
 + (Hop *)getHopAt:(int)pos;
 + (void)addHop:(Hop *)hop;

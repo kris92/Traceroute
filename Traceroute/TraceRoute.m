@@ -9,6 +9,7 @@
 #import "TraceRoute.h"
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <sys/time.h>
 #import "BDHost.h"
 
 @implementation TraceRoute
@@ -20,8 +21,6 @@
     udpPort = port;
     readTimeout = timeout;
     maxAttempts = attempts;
-    NSLog(@"  maxAttempts=%d",maxAttempts);
-    NSLog(@"TraceRoute");
     
     return self;
 }
@@ -29,13 +28,13 @@
 /**
  * Exécution totalement paramétrée du traceroute.
  */
-- (void)doTraceRouteToHost:(NSString *)host maxTTL:(int)ttl timeout:(int)timeout maxAttempts:(int)attempts port:(int)port
+- (Boolean)doTraceRouteToHost:(NSString *)host maxTTL:(int)ttl timeout:(int)timeout maxAttempts:(int)attempts port:(int)port
 {
     maxTTL = ttl;
     udpPort = port;
     readTimeout = timeout;
     maxAttempts = attempts;
-    [self doTraceRoute:host];
+    return [self doTraceRoute:host];
 }
 
 /**
@@ -43,7 +42,6 @@
  */
 - (Boolean)doTraceRoute:(NSString *)host
 {
-    //NSLog(@"doTraceRoute");
     struct hostent *host_entry = gethostbyname(host.UTF8String);
     char *ip_addr;
     ip_addr = inet_ntoa(*((struct in_addr *)host_entry->h_addr_list[0]));
@@ -53,16 +51,22 @@
     Boolean error = false;
     
     isrunning = true;
-    // On vide la TableView
+    // On vide le cache des hops du précédente recherche
     [Hop clear];
     
-    // Création de la socket destinée à traiter l'ICMP envoyé en retour.
+    // Création de la socket destinée à traiter l'ICMP renvoyée.
     if ((recv_sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP)) < 0) {
-        NSLog(@"ERROR Could not create recv_sock.");
+        if(_delegate != nil) {
+            [_delegate error:@"Could not create recv socket"];
+        }
+        return false;
     }
-    // Création de la socket destinée à 
+    // Création de la socket destinée à l'émission des trames HTTP.
     if((send_sock = socket(AF_INET , SOCK_DGRAM,0))<0){
-        NSLog(@"ERROR Could not cretae send_sock.\n");
+        if(_delegate != nil) {
+            [_delegate error:@"Could not create xmit socket"];
+        }
+        return false;
     }
     memset(&destination, 0, sizeof(destination));
     destination.sin_family = AF_INET;
@@ -76,49 +80,54 @@
     socklen_t n= sizeof(fromAddr);
     char buf[100];
     
-    //NSLog(@"maxAttempts=%d",maxAttempts);
-    
+    // index sur le TTL en cours de traitement.
     int ttl = 1;
-    int try = 0;
-    // Positionné à true lorsqu'on reçoit la trame ICMP en retour.
-    bool icmp = false;
+    
+    bool icmp = false;  // Positionné à true lorsqu'on reçoit la trame ICMP en retour.
     Hop *routeHop;
-    while(ttl < maxTTL) {
-        //NSLog(@"ttl=%d",ttl);
+    long startTime;     // Timestamp lors de l'émission du GET HTTP
+    int delta;          // Durée de l'aller-retour jusqu'au hop.
+    
+    // On progresse jusqu'à un nombre de TTLs max.
+    while(ttl <= maxTTL) {
         memset(&fromAddr, 0, sizeof(fromAddr));
-        if(setsockopt(send_sock, IPPROTO_IP, IP_TTL, &ttl, sizeof(ttl))<0) {
+        if(setsockopt(send_sock, IPPROTO_IP, IP_TTL, &ttl, sizeof(ttl)) < 0) {
             error = true;
-            NSLog(@"ERROR in setsockopt\n");
+            if(_delegate != nil) {
+                [_delegate error:@"setsockopt failled"];
+            }
         }
         
-        try = 0;
         icmp = false;
-        while(try < maxAttempts) {
-            //NSLog(@"try=%d",try);
-            try++;
+        
+        // On effectue plusieurs tentatives si on n'obtient pas de réponse avant le timeout.
+        for(int try = 0;try < maxAttempts;try++) {
+            delta = -1;
+            startTime = [TraceRoute getMicroSeconds];
             if (sendto(send_sock,cmsg,sizeof(cmsg),0,(struct sockaddr *) &destination,sizeof(destination)) != sizeof(cmsg) ) {
                 error = true;
-                NSLog (@"ERROR in send to...\n@");
+                NSLog (@"WARN in send to...\n@");
             }
             int res = 0;
             
             if( (res = recvfrom(recv_sock, buf, 100, 0, (struct sockaddr *)&fromAddr,&n))<0) {
+                // Erreur réseau ou timeout
                 error = true;
-                NSLog(@"ERROR [%d/%d] %s; recvfrom returned %d\n", try, maxAttempts, strerror(errno), res);
+                NSLog(@"WARN [%d/%d] %s; recvfrom returned %d\n", try, maxAttempts, strerror(errno), res);
             } else {
+                // On a reçu une trame ICMP. on calcule le temps total entre l'envoi et la réception.
+                delta = [TraceRoute computeDurationSince:startTime];
                 char display[16]={0};
+                // On flag pour spécifier qu'une trame ICMP a bien été reçue.
                 icmp = true;
+                
+                // On décode l'adresse du hop ayant répondu.
                 inet_ntop(AF_INET, &fromAddr.sin_addr.s_addr, display, sizeof (display));
                 NSString *hostAddress = [NSString stringWithFormat:@"%s",display];
                 NSString *hostName = [BDHost hostnameForAddress:hostAddress];
                 
-                routeHop = [[Hop alloc] initWithHostAddress:hostAddress hostName:hostName ttl:ttl];
+                routeHop = [[Hop alloc] initWithHostAddress:hostAddress hostName:hostName ttl:ttl time:delta];
                 [Hop addHop:routeHop];
-                /*if(_delegate != nil) {
-                    [_delegate newHop:routeHop];
-                }*/
-                
-                //NSLog(@"Received packet from:%@/%@ for TTL=%d\n",hostAddress,hostName,ttl);
                 
                 break;
             }
@@ -132,9 +141,9 @@
                 }
             }
         }
-        // En cas de timeout
+        // Détection d'un timeout sur non réponse
         if(!icmp) {
-            routeHop = [[Hop alloc] initWithHostAddress:@"*" hostName:@"*" ttl:ttl];
+            routeHop = [[Hop alloc] initWithHostAddress:@"*" hostName:@"*" ttl:ttl time:-1];
             [Hop addHop:routeHop];
         }
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -165,15 +174,39 @@
 /**
  * Retourne le nombre de hops couramment trouvés
  */
-- (int)hopsCount {
++ (int)hopsCount
+{
     return [Hop hopsCount];
 }
 
 /**
  * Retourne un boolean indiquant si le traceroute est toujours actif.
  */
-- (bool)isRunning {
+- (bool)isRunning
+{
     return isrunning;
+}
+
+/**
+ * Retourne un timestamp en microsecondes.
+ */
++ (long)getMicroSeconds
+{
+    struct timeval time;
+    gettimeofday(&time, NULL);
+    return time.tv_usec;
+}
+
+/**
+ * Calcule une durée en millisecondes par rapport au timestamp passé en paramètre.
+ */
++ (long)computeDurationSince:(long)uTime
+{
+    long now = [TraceRoute getMicroSeconds];
+    if(now < uTime) {
+        return 1000000 - uTime + now;
+    }
+    return now - uTime;
 }
 
 @end
